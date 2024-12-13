@@ -1,14 +1,21 @@
-import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-class Model:
+class Model(nn.Module):
     def __init__(self):
-        self.fc = np.random.randn(10, 1)
-    
+        super(Model, self).__init__()
+        self.fc1 = nn.Linear(28 * 28, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 10)
+
     def forward(self, x):
-        return np.dot(x, self.fc)
+        x = x.view(-1, 28 * 28)  # Flatten the input
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
     def predict(self, x):
-        return np.dot(x, self.fc)
-
-    def update(self, grad, learning_rate=0.1):
-        self.fc -= learning_rate * grad
+        outputs = self.forward(x)
+        return torch.argmax(F.softmax(outputs, dim=1), dim=1)

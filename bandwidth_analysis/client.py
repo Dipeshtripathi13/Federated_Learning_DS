@@ -1,17 +1,22 @@
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from model import Model
 
-class FederatedClient:
-    def __init__(self, data):
-        self.X_train, self.y_train = data  # Unpack the dataset
-        self.model = LogisticRegression(max_iter=1000)  # Model initialization
+def train_local_model(client_data, model):
+    num_epochs = 10
+    learning_rate = 0.1
 
-    def train(self):
-        # Train the model locally
-        self.model.fit(self.X_train, self.y_train)
-        # Return model coefficients (weights)
-        return self.model.coef_.flatten()
+    for epoch in range(num_epochs):
+        inputs, labels = client_data  
+        inputs = inputs.reshape(1, -1)  
+        outputs = model.forward(inputs)
+        loss = np.mean((outputs - labels) ** 2)
+        grad = 2 * np.dot(inputs.T, outputs - labels) / inputs.shape[1]  
+        model.update(grad, learning_rate)
 
-    def evaluate(self):
-        # Evaluate the local model accuracy on its data
-        return np.mean(self.model.predict(self.X_train) == self.y_train)
+    return model, loss
+
+def calculate_accuracy(model, client_data):
+    inputs, labels = client_data
+    predictions = model.predict(inputs.reshape(1, -1))
+    accuracy = np.mean((predictions == labels).astype(int))
+    return accuracy

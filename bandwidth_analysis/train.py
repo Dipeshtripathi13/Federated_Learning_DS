@@ -2,8 +2,8 @@ import torch
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 from model import Model
-from server import federated_averaging
-
+# from server import federated_averaging
+from server import federated_prox
 # Hyperparameters
 num_clients = 5
 num_rounds = 5
@@ -24,4 +24,5 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 global_model = Model()
 
 # Train Federated Learning
-federated_averaging(global_model, client_data_loaders, test_loader, num_rounds, device)
+# federated_averaging(global_model, client_data_loaders, test_loader, num_rounds, device)
+federated_prox(global_model, client_data_loaders, test_loader, num_rounds, device)
